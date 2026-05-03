@@ -1,76 +1,97 @@
+# AI Smart Glasses for Elderly Care
+**An Always-Available, AI-Powered Assistive Wearable Device**
+
+> **Developed by Team Mind2Matter:** Zicong Zhang & Yibo Wang  
+> **Course:** ESE5160 IoT Edge Computing, University of Pennsylvania
+
+---
+
 ## 1. Device Overview
 
 > **Device Description**
-> *(在这里用 2 句话极其精炼地概括你的设备：它是做什么的？它的核心技术亮点是什么？)*
+> This project is a wearable, AI-powered smart glasses system designed specifically for elderly users. It integrates a voice-first AI assistant, real-time fall detection, and environmental awareness to provide hands-free, always-available assistance and safety monitoring.
 
 **Inspiration & Problem Solving**
-* **The Problem:** *(你的设备要解决什么现实痛点？)*
-* **The Inspiration:** *(你是怎么想到这个点子的？)*
+* **The Problem:** Many existing IoT devices target fitness enthusiasts or smart homes, but few focus holistically on the real needs of elderly users who may struggle with complex interfaces or touchscreens. Falls are also one of the most dangerous risks for this demographic.
+* **The Solution:** We built a wearable device that users can interact with naturally using speech. It provides easy access to AI tools, continuously monitors posture for fall detection, and can intelligently analyze the user's surroundings.
 
 **Cloud Augmentation**
-* *(具体说明你的设备如何利用互联网/云端来增强功能？例如：通过 Azure 实现了远程数据可视化，或利用云端算力进行了数据分析等。)*
+* The device acts as an intelligent edge node. By leveraging Wi-Fi connectivity, it offloads heavy processing to the cloud. It uses Cloud APIs for Large Language Models (LLM) to answer complex questions, performs advanced Image processing for object recognition, and streams real-time alerts to a Caregiver Portal during emergencies.
 
 ---
 
-## 2. System Architecture & Functionality
+## 2. System Architecture & Core Functionality
 
-本设备的核心架构由以下关键组件构成：
+The device is coordinated by the **Silicon Labs SIWG917 Wi-Fi/BLE MCU**, combining on-device processing with cloud-based intelligence. 
 
-| Component Type | Part Details / Function |
+| Subsystem | Key Components & Specifications |
 | :--- | :--- |
-| **Sensors (传感器)** | *(例如：BME280 用于温湿度采集)* |
-| **Actuators (执行器)** | *(例如：伺服电机用于物理反馈)* |
-| **Microcontroller (主控)** | *(例如：ESP32 / SAMD21)* |
-| **Other Components** | *(例如：电源管理模块、特定的通信芯片)* |
+| **Main Control & Comm** | Silicon Labs SIWG917Y121MGABA (Wi-Fi 6 + BLE 5.3 MCU) |
+| **Motion Tracking** | 6-Axis IMU (Accelerometer + Gyroscope) sampled at ≥ 50 Hz |
+| **Vision & Audio** | 640×480 Camera Module; I2S Mic (≥ 16 kHz); Bone-conduction/Speaker (≥ 65 dBA) |
+| **Power Management** | Single-cell Li-ion Battery (3.7V) with USB-C/5V Charging & Regulation |
+
+**Key Features:**
+1. **Voice-First AI Assistant:** Users can ask questions via ASR (Speech-to-Text), and the device replies via TTS (Text-to-Speech) under 15 seconds.
+2. **Real-time Fall Detection:** The IMU continuously monitors sudden acceleration/orientation changes. If a fall pattern is detected within 2 seconds, it triggers an audible safety prompt and alerts caregivers if unconfirmed.
+3. **Object/Text Assistance:** The camera captures images of surroundings or text, uploading them to the cloud for AI analysis, returning a spoken summary to the user.
 
 **System-Level Block Diagram**
-*(用一张高清晰度的系统框图展示硬件与云端的交互流。不要放太复杂的原理图，要放能体现宏观架构的 Block Diagram。)*
-![System Block Diagram](./images/diagram.png) 
-*(注：之后你需要把图片传到仓库的 images 文件夹，并替换这个路径)*
+![System Block Diagram](./images/block_diagram.png) 
+*(Note: System architecture showing sensor inputs, I2C/I2S routing to the MCU, and cloud interaction via Wi-Fi.)*
 
 ---
 
-## 3. Engineering Challenges & Solutions
+## 3. PCB Design & Hardware Engineering
+*(We designed a custom printed circuit board to fit the strict size constraints of a wearable form factor.)*
 
-在整个开发周期中，我们在不同层面遇到了挑战，并针对性地进行了解决：
+**Hardware Highlights:**
+* **Wearable Constraints:** Designed to be lightweight and compact to fit an "eyeglasses form factor".
+* **Power Routing:** Carefully managed 3.3V and 5V regulated rails to isolate sensitive audio/sensor lines from the RF MCU.
+* **Component Selection:** Optimized for low power consumption to maximize the runtime of the single-cell Li-ion battery.
 
-* **Hardware / Firmware Challenges:**
-  * **Issue:** *(描述你遇到的硬件bug或底层固件问题)*
-  * **Solution:** *(你是怎么Debug的？用了什么测试仪器或代码逻辑解决的？)*
-
-* **Software / Integration Challenges:**
-  * **Issue:** *(描述云端接入、Node-RED 配置或软硬件联调时的困难)*
-  * **Solution:** *(你采用了什么协议或机制克服了这个瓶颈？)*
-
----
-
-## 4. Prototype Learnings & Iteration
-
-**Lessons Learned**
-* *(写1-2点你在构建和测试原型时学到的核心工程经验，比如“永远要提前规划好电源走线”或者“不要低估无线通信的延迟”)*
-
-**Future Iteration (What I would do differently)**
-* *(展示你的工程师思维：如果重来一次，你会如何优化设计？比如换用功耗更低的芯片、优化外壳结构等)*
+**PCBA 3D Render & Routing:**
+![PCBA 3D Render](./images/pcba_3d.png) 
+![PCB Routing](./images/pcba_routing.png)
 
 ---
 
-## 5. Next Steps & Course Takeaways
+## 4. Engineering Challenges & Solutions
 
-**Path to Production (Next Steps)**
-要将这个原型转化为更完善的工程项目，我们计划进行以下优化：
-1. *(例如：设计更加紧凑的 4 层 PCBA)*
-2. *(例如：完善 Node-RED 的用户交互界面)*
+* **Challenge 1: Audio / Wake-word Latency**
+  * **Issue:** *(留白：写写你们在处理麦克风录音或者音频播放时遇到的困难，比如噪音、延迟)*
+  * **Solution:** *(留白：怎么解决的？用了什么缓冲机制？)*
 
-**Course Takeaways (ESE5160)**
-通过这门课程的系统学习和全周期的原型开发，我最大的收获是：
-*(重点强调你走完了从概念 -> 电路设计(Altium) -> 固件开发 -> 云端部署(Azure/Node-RED) 的全栈硬件开发流程。这是面试官最爱看的一点！)*
+* **Challenge 2: Fall Detection Accuracy**
+  * **Issue:** *(留白：写写IMU算法是怎么区分“正常坐下”和“跌倒”的)*
+  * **Solution:** *(留白：怎么调试阈值的？)*
+
+* **Challenge 3: Wearable Integration**
+  * **Issue:** *(留白：写写电池、摄像头和主板怎么塞进眼镜里的，发热怎么处理的)*
+  * **Solution:** *(留白：你的解决方案)*
+
+---
+
+## 5. Prototype Learnings & Future Iteration
+
+**Lessons Learned:**
+* *(留白：写一两句最深刻的工程教训，比如硬件选型、或者软硬联调的坑)*
+
+**Future Improvements (Path to Production):**
+* **Hardware:** *(例如：采用柔性电路板 FPC 来进一步缩小体积，隐藏在眼镜腿内)*
+* **Firmware:** *(例如：加入边缘端的小型唤醒词模型，进一步降低功耗)*
 
 ---
 
-## 6. Project Links
+## 6. Project Media & Links
 
-* 🌐 **Cloud Dashboard:** [Node-RED Instance on Azure](#) *(点击查看实时数据)*
-* 🛠️ **Hardware Design:** [Final PCBA on Altium 365](#) *(点击查看完整硬件工程)*
+**Project Demo Video**
+[![Watch the video](https://img.youtube.com/vi/YOUR_VIDEO_ID/hqdefault.jpg)](https://youtu.be/YOUR_VIDEO_ID)
+*(Click to watch the real-time AI and Fall Detection Demo)*
+
+**Engineering Resources:**
+* 🌐 **Cloud Dashboard:** [Node-RED Instance on Azure](#) *(Caregiver Portal)*
+* 🛠️ **Hardware Design:** [Final PCBA on Altium 365](#)
 
 ---
-*Developed at the University of Pennsylvania (UPenn).*
+*Built with ❤️ for ESE5160 at the University of Pennsylvania.*
